@@ -1,0 +1,31 @@
+Task1,UrgentImportant,ToDo,2024-06-15,Work,Pilne zadanie do wykonania
+Task2,NotUrgentImportant,InProgress,2024-07-01,Personal,Praca nad projektem domowym
+Task3,UrgentNotImportant,Finished,2024-06-10,Other,Szybkie zadanie zakończone
+Task4,NotUrgentNotImportant,ToDo,2024-08-20,Leisure,Planowanie wakacji
+Task5,UrgentImportant,InProgress,2024-06-18,Work,Prezentacja dla zespołu
+
+
+
+
+#TU ZAKOMENTOWANE JEST I TO DZIAŁA HAHA
+#TODO:
+#1. zmienic wyswietlnaie zeby nie bylo opisow i mozna bylo zajrzec do taska by sprawdzic opis
+
+#2. zadbac o sorty statusu i priorytetu
+
+#3. dodac mozliwosc edycji taska
+
+#4. dodac mozliwosc oznaczenia taska moze jakas flaga w edycji zeby nie musiec wpisywac?
+### można by flagą podnosic taska do statusu wyzej      todo->inprogress->finished
+### i flage ktora robi odwrotnie                        finished->inprogress->todo
+### no i tez taka co od razu odchacza ze finished takie flagi proponuje do komendy edit (edit -up/-down/-tick)
+### no i oblugiwac blad przeskoczenia outofbounds? StatusOutOfBoundsException? Ale nie wyrzucac programu moze tylko info ze nie ma takiego statusu
+
+#5. generowanie statystyk
+
+#6. statystyki do wykresow
+
+#7. pozmieniac zeby byl jedna konwencja jezyka printow bo zapominam sie
+
+
+#HMMM.... troche do zrobienia ale nie ma co sie spieszyc ale zobaczymy
