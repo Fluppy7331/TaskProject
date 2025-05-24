@@ -3,29 +3,69 @@ Task2,NotUrgentImportant,InProgress,2024-07-01,Personal,Praca nad projektem domo
 Task3,UrgentNotImportant,Finished,2024-06-10,Other,Szybkie zadanie zakończone
 Task4,NotUrgentNotImportant,ToDo,2024-08-20,Leisure,Planowanie wakacji
 Task5,UrgentImportant,InProgress,2024-06-18,Work,Prezentacja dla zespołu
+Task6,NotUrgentImportant,ToDo,2024-07-10,Personal,Przeczytać książkę
+Task7,UrgentNotImportant,ToDo,2024-06-25,Other,Oddać książki do biblioteki
+Task8,NotUrgentNotImportant,Finished,2024-05-30,Leisure,Wycieczka rowerowa
+Task9,UrgentImportant,ToDo,2024-06-20,Work,Przygotować raport kwartalny
+Task10,NotUrgentImportant,InProgress,2024-07-05,Personal,Naprawić rower
+Task11,UrgentNotImportant,ToDo,2024-06-22,Other,Spotkanie z przyjaciółmi
+Task12,NotUrgentNotImportant,ToDo,2024-08-01,Leisure,Planowanie grilla
+Task13,UrgentImportant,Finished,2024-06-12,Work,Podsumowanie projektu
+Task14,NotUrgentImportant,ToDo,2024-07-15,Personal,Zakupy spożywcze
+Task15,UrgentNotImportant,InProgress,2024-06-28,Other,Przygotować prezentację
+Task16,NotUrgentNotImportant,ToDo,2024-08-10,Leisure,Rezerwacja hotelu
+Task17,UrgentImportant,ToDo,2024-06-17,Work,Spotkanie z klientem
+Task18,NotUrgentImportant,Finished,2024-06-02,Personal,Pranie i sprzątanie
+Task19,UrgentNotImportant,ToDo,2024-06-27,Other,Opłacić rachunki
+Task20,NotUrgentNotImportant,ToDo,2024-08-15,Leisure,Wyjazd na weekend
+Task21,UrgentImportant,InProgress,2024-06-19,Work,Testowanie aplikacji
+Task22,NotUrgentImportant,ToDo,2024-07-20,Personal,Wyjście do kina
+Task23,UrgentNotImportant,Finished,2024-06-08,Other,Przegląd samochodu
+Task24,NotUrgentNotImportant,ToDo,2024-08-05,Leisure,Malowanie pokoju
+Task25,UrgentImportant,ToDo,2024-06-21,Work,Przygotować ofertę
+Task26,NotUrgentImportant,InProgress,2024-07-08,Personal,Planowanie urlopu
+Task27,UrgentNotImportant,ToDo,2024-06-29,Other,Wyprowadzić psa
+Task28,NotUrgentNotImportant,ToDo,2024-08-12,Leisure,Organizacja pikniku
+Task29,UrgentImportant,Finished,2024-06-13,Work,Podpisanie umowy
+Task30,NotUrgentImportant,ToDo,2024-07-18,Personal,Przygotować obiad
+Task31,UrgentNotImportant,InProgress,2024-06-26,Other,Przygotować CV
+Task32,NotUrgentNotImportant,ToDo,2024-08-18,Leisure,Wyjazd na koncert
+Task33,UrgentImportant,ToDo,2024-06-23,Work,Przygotować szkolenie
+Task34,NotUrgentImportant,Finished,2024-06-04,Personal,Przegląd lekarski
+Task35,UrgentNotImportant,ToDo,2024-06-30,Other,Wyjazd do rodziny
+Task36,NotUrgentNotImportant,ToDo,2024-08-25,Leisure,Wycieczka w góry
+Task37,UrgentImportant,InProgress,2024-06-16,Work,Analiza danych
+Task38,NotUrgentImportant,ToDo,2024-07-25,Personal,Przygotować prezent
+Task39,UrgentNotImportant,Finished,2024-06-09,Other,Pranie firanek
+Task40,NotUrgentNotImportant,ToDo,2024-08-30,Leisure,Wyjście do teatru
 
 
 
 
 #TU ZAKOMENTOWANE JEST I TO DZIAŁA HAHA
 #TODO:
-#1. zmienic wyswietlnaie zeby nie bylo opisow i mozna bylo zajrzec do taska by sprawdzic opis
+#--1. zmienic wyswietlnaie zeby nie bylo opisow i mozna bylo zajrzec do taska by sprawdzic opis --done
 
-#2. zadbac o sorty statusu i priorytetu
+#--2. zadbac o sorty statusu i priorytetu --done
 
-#3. dodac mozliwosc edycji taska
+#--3. dodac mozliwosc edycji taska --done
 
-#4. dodac mozliwosc oznaczenia taska moze jakas flaga w edycji zeby nie musiec wpisywac?
+#--4. dodac mozliwosc oznaczenia taska moze jakas flaga w edycji zeby nie musiec wpisywac?
 ### można by flagą podnosic taska do statusu wyzej      todo->inprogress->finished
 ### i flage ktora robi odwrotnie                        finished->inprogress->todo
 ### no i tez taka co od razu odchacza ze finished takie flagi proponuje do komendy edit (edit -up/-down/-tick)
 ### no i oblugiwac blad przeskoczenia outofbounds? StatusOutOfBoundsException? Ale nie wyrzucac programu moze tylko info ze nie ma takiego statusu
+## --done
 
 #5. generowanie statystyk
 
 #6. statystyki do wykresow
 
 #7. pozmieniac zeby byl jedna konwencja jezyka printow bo zapominam sie
+
+#8. dodac mozliwosc filtrowania
+
+#9. WAŻNE!!!! trzeba wszedzie typy pododawac tego projekt wymaga
 
 
 #HMMM.... troche do zrobienia ale nie ma co sie spieszyc ale zobaczymy

@@ -5,9 +5,21 @@ from Exceptions.TaskFormatException import TaskFormatException
 
 
 class Task:
-    # Nie wolno zmieniac kolejnosci argumentow
-    ALLOWED_STATUSES_WITH_ORDER = ("ToDo", "InProgress", "Finished")
-    ALLOWED_PRIORITIES_WITH_ORDER = ("UrgentImportant", "NotUrgentImportant", "UrgentNotImportant", "NotUrgentNotImportant")
+    # Nie wolno zmieniac kolejnosci argumentow (finished ma byc ostatni)
+    ALLOWED_STATUSES_WITH_ORDER = {
+        "ToDo": 0,
+        "InProgress": 1,
+        "Finished": 2
+    }
+
+    ALLOWED_STATUSES = tuple(ALLOWED_STATUSES_WITH_ORDER.keys())
+    ALLOWED_PRIORITIES_WITH_ORDER ={
+        "UrgentImportant": 3,
+        "NotUrgentImportant": 2,
+        "UrgentNotImportant": 1,
+        "NotUrgentNotImportant": 0
+    }
+    ALLOWED_PRIORITIES = ALLOWED_PRIORITIES_WITH_ORDER.keys()
 
     def __init__(self, name, priority, status, due_date, category, description):
         self._name = name
@@ -28,7 +40,7 @@ class Task:
                 raise TaskFormatException("Task name must be a non-empty string.")
             self._name = value
         except TaskFormatException as e:
-            print(e.message)
+            raise
 
     @property
     def priority(self):
@@ -46,7 +58,7 @@ class Task:
                 )
             self._priority = new_priority
         except TaskFormatException as e:
-            print(e.message)
+            raise
 
     @property
     def status(self):
@@ -57,14 +69,28 @@ class Task:
         try:
             if not isinstance(new_status, str) or new_status == "":
                 raise TaskFormatException("Task status must be a non-empty string.")
-            if new_status not in Task.ALLOWED_STATUSES_WITH_ORDER:
+            if new_status not in Task.ALLOWED_STATUSES:
                 raise TaskFormatException(
-                    """Task priority must be: ToDo, InProgress or Finished."""
+                    """Task status must be: ToDo, InProgress or Finished."""
                 )
 
             self._status = new_status
         except TaskFormatException as e:
-            print(e.message)
+            raise
+
+    # @status.setter
+    # def status_tweak(self,up_down_change  : bool):
+    #     try:
+    #         if not isinstance(new_status, str) or new_status == "":
+    #             raise TaskFormatException("Task status must be a non-empty string.")
+    #         if new_status not in Task.ALLOWED_STATUSES:
+    #             raise TaskFormatException(
+    #                 """Task status must be: ToDo, InProgress or Finished."""
+    #             )
+    #
+    #         self._status = new_status
+    #     except TaskFormatException as e:
+    #         raise
 
     @property
     def due_date(self):
@@ -72,16 +98,13 @@ class Task:
 
     @due_date.setter
     def due_date(self, new_due_date):
-        try:
-            if (not isinstance(new_due_date, str)
-                    or new_due_date == ""
-                    or not re.match(r"^\d{4}-\d{2}-\d{2}$", new_due_date)
-            ):
-                raise DataFormatException("Task due date must be a non-empty string in a format: YYYY-MM-DD.")
+        if (not isinstance(new_due_date, str)
+                or new_due_date == ""
+                or not re.match(r"^\d{4}-\d{2}-\d{2}$", new_due_date)
+        ):
 
-            self._due_date = new_due_date
-        except TaskFormatException as e:
-            print(e.message)
+            raise DataFormatException("Task due date must be a non-empty string in a format: YYYY-MM-DD.")
+        self._due_date = new_due_date
 
     @property
     def category(self):
@@ -111,12 +134,14 @@ class Task:
         except TaskFormatException as e:
             print(e.message)
 
-    def __str__(self):
-        return (f"{self._name},"
-                f" priority={self._priority},"
-                f" status={('Do zrobienia 📝' if self._status == Task.ALLOWED_STATUSES_WITH_ORDER[0]
-                            else 'W trakcie ⏳' if self._status == Task.ALLOWED_STATUSES_WITH_ORDER[1]
-                else 'Zakończone ✅' if self._status == Task.ALLOWED_STATUSES_WITH_ORDER[2] else self._status)},"
-                f" due_date={self._due_date},"
-                f" category={self._category},"
-                f" description={self._description}")
+    def __str__(self, detailed=False):
+        if detailed:
+            return (f"Nazwa: {self._name}\n"
+                    f"Priorytet: {self._priority}\n"
+                    f"Status: {'Do zrobienia 📝' if self._status == Task.ALLOWED_STATUSES[0] else 'W trakcie ⏳' if self._status == Task.ALLOWED_STATUSES[1] else 'Zakończone ✅' if self._status == Task.ALLOWED_STATUSES[2] else self._status}\n"
+                    f"Termin: {self._due_date}\n"
+                    f"Kategoria: {self._category}\n"
+                    f"Opis: {self._description}\n")
+        else:
+            return (
+                f"{self._name}, priority={self._priority}, status={('Do zrobienia 📝' if self._status == Task.ALLOWED_STATUSES[0] else 'W trakcie ⏳' if self._status == Task.ALLOWED_STATUSES[1] else 'Zakończone ✅' if self._status == Task.ALLOWED_STATUSES[2] else self._status)}, due_date={self._due_date}")
