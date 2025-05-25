@@ -38,11 +38,30 @@ Task37,UrgentImportant,InProgress,2024-06-16,Work,Analiza danych
 Task38,NotUrgentImportant,ToDo,2024-07-25,Personal,Przygotować prezent
 Task39,UrgentNotImportant,Finished,2024-06-09,Other,Pranie firanek
 Task40,NotUrgentNotImportant,ToDo,2024-08-30,Leisure,Wyjście do teatru
+Task41,UrgentImportant,ToDo,2025-01-10,Work,Nowy projekt do rozpoczęcia
+Task42,NotUrgentNotImportant,InProgress,2025-02-05,Personal,Przygotować prezentację na konferencję
+Task43,UrgentNotImportant,ToDo,2025-03-10,Other,Wyjazd służbowy
+Task44,NotUrgentNotImportant,Finished,2025-04-12,Leisure,Wycieczka do muzeum
+Task45,UrgentImportant,InProgress,2025-05-15,Work,Spotkanie z zespołem
+Task46,NotUrgentNotImportant,ToDo,2025-06-18,Personal,Przeczytać nową książkę
+Task47,UrgentNotImportant,ToDo,2025-07-20,Other,Oddać dokumenty do urzędu
+Task48,NotUrgentNotImportant,ToDo,2025-08-22,Leisure,Seans filmowy z rodziną
+Task49,UrgentImportant,ToDo,2025-09-25,Work,Przygotować raport miesięczny
+Task50,NotUrgentNotImportant,InProgress,2025-10-28,Personal,Planowanie wakacji
+Task51,UrgentNotImportant,ToDo,2025-11-05,Other,Przegląd samochodu
+Task52,NotUrgentNotImportant,ToDo,2025-12-15,Leisure,Wyjście na koncert
+Task53,UrgentImportant,Finished,2026-01-06,Work,Podsumowanie projektu kwartalnego
+Task54,NotUrgentNotImportant,ToDo,2026-02-09,Personal,Przygotować obiad dla znajomych
+Task55,UrgentNotImportant,InProgress,2026-03-12,Other,Przygotować CV
+Task56,NotUrgentNotImportant,ToDo,2026-04-15,Leisure,Wyjazd na weekend
+Task57,UrgentImportant,ToDo,2026-05-18,Work,Testowanie nowej aplikacji
+Task58,NotUrgentImportant,ToDo,2026-06-20,Personal,Wyjście do teatru
+Task59,UrgentNotImportant,Finished,2026-07-23,Other,Pranie firanek
+Task60,NotUrgentNotImportant,ToDo,2026-08-27,Leisure,Wycieczka rowerowa
 
 
 
 
-#TU ZAKOMENTOWANE JEST I TO DZIAŁA HAHA
 #TODO:
 #--1. zmienic wyswietlnaie zeby nie bylo opisow i mozna bylo zajrzec do taska by sprawdzic opis --done
 
@@ -63,9 +82,8 @@ Task40,NotUrgentNotImportant,ToDo,2024-08-30,Leisure,Wyjście do teatru
 
 #7. pozmieniac zeby byl jedna konwencja jezyka printow bo zapominam sie
 
-#8. dodac mozliwosc filtrowania
+#--8. dodac mozliwosc filtrowania tasków po priorytecie, kategorii, statusu i po dacie (dziś / ten tydzień / ten miesiąc) --done
 
 #9. WAŻNE!!!! trzeba wszedzie typy pododawac tego projekt wymaga
 
-
-#HMMM.... troche do zrobienia ale nie ma co sie spieszyc ale zobaczymy
+#BUGS :

@@ -1,6 +1,6 @@
-class TaskAlreadyHighestPrioException(Exception):
+class UnknownAttributeException(Exception):
     """
-    Exception raised when a task is already at the highest priority level.
+    Exception raised when an unknown filtering attribute is encountered.
     """
     def __init__(self, message):
         super().__init__(f"{message} ({self.__class__.__name__})")

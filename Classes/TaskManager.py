@@ -1,23 +1,58 @@
 from Classes.Task import Task
 from Exceptions.FlagsConflictException import FlagsConflictException
+from Exceptions.TaskAlreadyDoneException import TaskAlreadyDoneException
+from Exceptions.TaskAlreadyHighestPrioException import TaskAlreadyHighestPrioException
+from Exceptions.TaskAlreadyLowestPrioException import TaskAlreadyLowestPrioException
 from Exceptions.TaskFormatException import TaskFormatException
 import copy
+from datetime import date
+import matplotlib.pyplot as plt
+
+from Exceptions.UnknownAttributeException import UnknownAttributeException
 
 
 class TaskManager:
+    ALLOWED_DATE_OPTIONS = ("ten_dzien", "ten_tydzien", "ten_miesiac", "ten_rok")
+
     def __init__(self, task_file_path="Resources/tasksFile.txt"):
         self.tasks = []
         # Sciezka bedzie statyczna do pojedynczego TaskManagera
         self.taskFilePath = task_file_path
+        # WARNING: klucze musza odpowiadac nazwą atrybutom z Taska. Nie zmieniaj ich!
+        self.filter_dict = {
+            'priority': set(),
+            'status': set(),
+            'due_date': set(),
+            'category': set()
+        }
+        self._allowed_categories = set()
+        # Kategoria aktualizują się automatycznie przy dodaniu lub usunięciu zadania za pomocą _update_categories
         self.load_from_file()
 
+    @property
+    def allowed_resources(self):
+        return {
+            'priority': Task.ALLOWED_PRIORITIES,
+            'status': Task.ALLOWED_STATUSES,
+            'due_date': self.ALLOWED_DATE_OPTIONS,
+            'category': self._allowed_categories
+        }
+
     def add_task(self, task: Task) -> None:
+        # nazwa musi być unikalna!
+        try:
+            self._validate_name(task.name)
+        except TaskFormatException as e:
+            print(f"Nie można dodać zadania: {e.message}")
+            return
         self.tasks.append(task)
+        self._update_categories()
         print(f"Task '{task}' added.")
 
     def remove_task(self, task: Task) -> None:
         if task in self.tasks:
             self.tasks.remove(task)
+            self._update_categories()
             print(f"Task '{task}' removed.")
         else:
             print(f"Task '{task}' not found.")
@@ -30,11 +65,13 @@ class TaskManager:
                 break
         if task_to_remove:
             self.tasks.remove(task_to_remove)
+            self._update_categories()
             print(f"Task '{task_name}' removed.")
         else:
             print(f"Task '{task_name}' not found.")
 
     def edit_task_by_name(self, flags: list[str], task_name: str) -> None:
+
         task_to_edit = None
         task_before_edit = None
         for task in self.tasks:
@@ -51,34 +88,38 @@ class TaskManager:
         # TODO: mozna jakos to lepiej zrobic, ale na razie nie ma potrzeby
 
         if '-up' in flags:
-            current_status = task_to_edit.status
-            current_status_index = Task.ALLOWED_STATUSES.index(current_status)
-            if current_status_index < len(Task.ALLOWED_STATUSES) - 1:
-                task_to_edit.status = Task.ALLOWED_STATUSES[current_status_index + 1]
+            try:
+                task_to_edit.increase_status()
                 print(f"Status zadania został podniesiony do {task_to_edit.status}.")
-            else:
-                print("Status zadania jest już na najwyższym poziomie.")
+            except TaskAlreadyHighestPrioException as e:
+                print(e.message)
+            return
         elif '-down' in flags:
-            current_status = task_to_edit.status
-            current_status_index = Task.ALLOWED_STATUSES.index(current_status)
-            if current_status_index > 0:
-                task_to_edit.status = Task.ALLOWED_STATUSES[current_status_index - 1]
+            try:
+                task_to_edit.decrease_status()
                 print(f"Status zadania został obniżony do {task_to_edit.status}.")
-            else:
-                print("Status zadania jest już na najniższym poziomie.")
+            except TaskAlreadyLowestPrioException as e:
+                print(e.message)
+            return
         elif '-tick' in flags:
-            if task_to_edit.status == Task.ALLOWED_STATUSES[-1]:  # Finished
-                print("Zadanie jest już ukończone.")
-                return
-            else:
-                task_to_edit.status = Task.ALLOWED_STATUSES[-1]
+            try:
+                task_to_edit.mark_as_finished()
                 print(f"Zadanie '{task_name}' zostało oznaczone jako ukończone.")
-                return
-        #Todo : trzeba zrobic obsluge w klasie i rzucic bledem jak jest max bedzie ladniej skladniowo
+            except TaskAlreadyDoneException as e:
+                print(e.message)
+            return
+
         print(f"Edycja zadania: {task_to_edit}")
-        new_name = input("Podaj nową nazwę: (pozostaw puste, aby zachować obecny)")
-        if new_name:
-            task_to_edit.name = new_name
+        while True:
+            new_name = input("Podaj nową nazwę: (pozostaw puste, aby zachować obecny)")
+            if new_name:
+                try:
+                    self._validate_name(new_name)
+                except TaskFormatException as e:
+                    print(f"Nie można dodać zadania: {e.message}")
+                    continue
+                task_to_edit.name = new_name
+                break
         while True:
             try:
                 new_priority = input(
@@ -140,8 +181,11 @@ class TaskManager:
             print("No tasks available.")
         else:
             print("Tasks:")
+            # listowanie z uwzględnieniem filtrów
             for task in self.tasks:
-                print(f"- {task.__str__(detailed=detailed)}")
+                # tutaj metoda _should_be_shown sprawdza, czy zadanie powinno być pokazane na podstawie filtrów
+                if self._should_be_shown(task):
+                    print(f"- {task.__str__(detailed=detailed)}")
 
     def show_task_details(self, task_name: str) -> None:
         task_to_show = None
@@ -154,6 +198,59 @@ class TaskManager:
             return
         print(f"Details for task '{task_name}':\n{task_to_show.__str__(detailed=True)}")
 
+    def filter_tasks(self, flags : list[str]) -> None:
+        while True:
+            if '-clear' in flags or '-clr' in flags:
+                self.filter_dict = {key: set() for key in self.filter_dict.keys()}
+                print("Filtry zostały wyczyszczone.")
+                return
+
+            if '-show' in flags:
+                if not any(self.filter_dict.values()):
+                    print("Brak aktywnych filtrów.")
+                else:
+                    print("Aktywne filtry:")
+                    for key, values in self.filter_dict.items():
+                        if values:
+                            print(f"\t{key}: {', '.join(values)}")
+                return
+
+            filter_attributes = (input(f"Wybierz atrybuty do filtrowania spośród {self.filter_dict.keys()}:")).split(" ")
+            if not filter_attributes:
+                print("Nie podano atrybutów do filtrowania. Podaj atrybuty ponownie.")
+                continue
+
+            for attribute in filter_attributes:
+                if attribute not in self.filter_dict:
+                    print(f"Atrybut '{attribute}' nie jest prawidłowy. Wybierz spośród {self.filter_dict.keys()}.")
+                    continue
+
+            while True:
+                print(
+                    f"\nPodaj wartości do filtrowania dla atrybutów {', '.join(filter_attributes)}.\n"
+                    f"Możliwe wartości dla każdego atrybutu:\n" + "\n".join(
+                    f"  {attr}: {', '.join(self.allowed_resources[attr])}" for attr in filter_attributes
+                    ))
+                filter_values = input("").strip().split(" ")
+
+                for filter_value in filter_values:
+                    if filter_value in Task.ALLOWED_PRIORITIES:
+                        self.filter_dict['priority'].add(filter_value)
+                    elif filter_value in Task.ALLOWED_STATUSES:
+                        self.filter_dict['status'].add(filter_value)
+                    elif filter_value in self.ALLOWED_DATE_OPTIONS:
+                        self.filter_dict['due_date'].add(filter_value)
+                    elif filter_value in self._allowed_categories:
+                        self.filter_dict['category'].add(filter_value)
+                    else:
+                        print(f"Wartość '{filter_value}' nie jest prawidłowa dla żadnego atrybutu.")
+                        continue
+
+                print(
+                    f"Zadania będą filtrowane według: {', '.join(f'{key}: {values}' for key, values in self.filter_dict.items() if values)}")
+                break
+            return
+
     def sort_tasks(self, flags: list[str], *args: str) -> None:
         reverse = False
         if not args:
@@ -164,7 +261,6 @@ class TaskManager:
                 reverse = True
                 args = list(args)
                 args.remove('-r')
-
             # Unikalne atrybuty do sortowania rozwiazane we wlasnym kluczu
             def my_key(task):
                 key = []
@@ -182,6 +278,25 @@ class TaskManager:
         except AttributeError as e:
             print(f"Błąd sortowania: {e}")
 
+    def display_statistics(self) -> None:
+        status_occurrences = {status: 0 for status in Task.ALLOWED_STATUSES}
+        for task in self.tasks:
+            status_occurrences[task.status] += 1
+        kolory = ['#ffb3ba', '#baffc9', '#bae1ff']  # pastelowe kolory
+        plt.pie(status_occurrences.values(), labels=status_occurrences.keys(), autopct='%1.1f%%', colors=kolory,
+                startangle=90)
+        plt.title("Statystyki zadań według statusu")
+        plt.show()
+
+        category_occurrences = {category: 0 for category in self._allowed_categories}
+
+        for task in self.tasks:
+            category_occurrences[task.category] += 1
+        plt.pie(category_occurrences.values(), labels=category_occurrences.keys(), autopct='%1.1f%%',
+                startangle=90)
+        plt.title("Statystyki zadań według kategorii")
+        plt.show()
+
     def load_from_file(self) -> None:
         try:
             with open(self.taskFilePath, 'r', encoding='utf-8') as file:
@@ -196,6 +311,7 @@ class TaskManager:
                     task = Task(*task_data)
                     temp_tasks.append(task)
                 self.tasks = temp_tasks
+                self._update_categories()
         except FileNotFoundError:
             print(f"File '{self.taskFilePath}' not found.")
         except TaskFormatException as e:
@@ -210,3 +326,33 @@ class TaskManager:
             print(f"Tasks saved to '{self.taskFilePath}'.")
         except Exception as e:
             print(f"Error saving tasks: {e}")
+
+    def _validate_name(self, name: str) -> None:
+        if any(task.name == name for task in self.tasks):
+            raise TaskFormatException(f"Task with name '{name}' already exists.")
+
+    def _update_categories(self) -> None:
+        self._allowed_categories = set(task.category for task in self.tasks if task.category)
+
+    def _should_be_shown(self, task: Task) -> bool:
+        for key_attr, values in self.filter_dict.items():
+            # tutaj jest sprytnie jak wartości dicta są puste to pokazujemy wszystkie, jak nie, to sprawdzamy te, które są czy takie same jak w obiekcie do wyświetlenia
+            if values:
+                if key_attr == 'due_date':
+                    today = date.today()
+                    task_date = tuple(map(int, task.due_date.split('-')))
+                    today_date = (today.year, today.month, today.day)
+                    if 'ten_dzien' in values and task_date != today_date:
+                        return False
+                    if 'ten_tydzien' in values:
+                        task_dt = date(task_date[0], task_date[1], task_date[2])
+                        if task_dt.isocalendar()[:2] != today.isocalendar()[:2]:
+                            return False
+                    if 'ten_miesiac' in values and not (task_date[0] == today.year and task_date[1] == today.month):
+                        return False
+                    if 'ten_rok' in values and task_date[0] != today.year:
+                        return False
+                    continue
+                if getattr(task, key_attr) not in values:
+                    return False
+        return True
