@@ -61,29 +61,16 @@ Task60,NotUrgentNotImportant,ToDo,2026-08-27,Leisure,Wycieczka rowerowa
 
 
 
-
 #TODO:
-#--1. zmienic wyswietlnaie zeby nie bylo opisow i mozna bylo zajrzec do taska by sprawdzic opis --done
-
-#--2. zadbac o sorty statusu i priorytetu --done
-
-#--3. dodac mozliwosc edycji taska --done
-
-#--4. dodac mozliwosc oznaczenia taska moze jakas flaga w edycji zeby nie musiec wpisywac?
-### można by flagą podnosic taska do statusu wyzej      todo->inprogress->finished
-### i flage ktora robi odwrotnie                        finished->inprogress->todo
-### no i tez taka co od razu odchacza ze finished takie flagi proponuje do komendy edit (edit -up/-down/-tick)
-### no i oblugiwac blad przeskoczenia outofbounds? StatusOutOfBoundsException? Ale nie wyrzucac programu moze tylko info ze nie ma takiego statusu
-## --done
-
-#5. generowanie statystyk
-
-#6. statystyki do wykresow
-
-#7. pozmieniac zeby byl jedna konwencja jezyka printow bo zapominam sie
-
-#--8. dodac mozliwosc filtrowania tasków po priorytecie, kategorii, statusu i po dacie (dziś / ten tydzień / ten miesiąc) --done
-
-#9. WAŻNE!!!! trzeba wszedzie typy pododawac tego projekt wymaga
-
+#6. generowanie statystyk i do wykresow
+#7 w sumie to mozna jjakos ladniej zprepatowac dane
+#
 #BUGS :
+#- nieobsluzony wyjatek przy np edit -up -down
+#"Wpisz polecenie >edit -up -down Task1
+#Traceback (most recent call last):
+#  File "C:\Users\Szymon\PycharmProjects\100 Days of Code\TaskProject\main.py", line 50, in <module>
+#    taskManager.edit_task_by_name(flags ,name)
+#  File "C:\Users\Szymon\PycharmProjects\100 Days of Code\TaskProject\Classes\TaskManager.py", line 89, in edit_task_by_name
+#    raise FlagsConflictException("Provided flags are conflicting. Please use only one flag at a time.")
+#Exceptions.FlagsConflictException.FlagsConflictException: Provided flags are conflicting. Please use only one flag at a time. (FlagsConflictException)"

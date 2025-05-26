@@ -1,5 +1,5 @@
 from Classes.Task import Task
-from Exceptions.FlagsConflictException import FlagsConflictException
+from Exceptions.NotUniqueNameException import NotUniqueNameException
 from Exceptions.TaskAlreadyDoneException import TaskAlreadyDoneException
 from Exceptions.TaskAlreadyHighestPrioException import TaskAlreadyHighestPrioException
 from Exceptions.TaskAlreadyLowestPrioException import TaskAlreadyLowestPrioException
@@ -8,7 +8,6 @@ import copy
 from datetime import date
 import matplotlib.pyplot as plt
 
-from Exceptions.UnknownAttributeException import UnknownAttributeException
 
 
 class TaskManager:
@@ -71,7 +70,7 @@ class TaskManager:
             print(f"Task '{task_name}' not found.")
 
     def edit_task_by_name(self, flags: list[str], task_name: str) -> None:
-
+        is_updated = False
         task_to_edit = None
         task_before_edit = None
         for task in self.tasks:
@@ -84,8 +83,8 @@ class TaskManager:
             return
 
         if len(flags) > 1:
-            raise FlagsConflictException("Provided flags are conflicting. Please use only one flag at a time.")
-        # TODO: mozna jakos to lepiej zrobic, ale na razie nie ma potrzeby
+            print("Provided flags are conflicting. Please use only one flag at a time.")
+            return
 
         if '-up' in flags:
             try:
@@ -119,6 +118,9 @@ class TaskManager:
                     print(f"Nie można dodać zadania: {e.message}")
                     continue
                 task_to_edit.name = new_name
+                is_updated=True
+                break
+            else:
                 break
         while True:
             try:
@@ -126,6 +128,7 @@ class TaskManager:
                     f"Podaj nowy priorytet (pozostaw puste, aby zachować obecny)\n(dostępne: {', '.join(Task.ALLOWED_PRIORITIES)}): ")
                 if new_priority:
                     task_to_edit.priority = new_priority
+                    is_updated = True
                 break
             except TaskFormatException as e:
                 print(f"Nieprawidłowy priorytet: {e.message}")
@@ -137,6 +140,7 @@ class TaskManager:
                     f"Podaj nowy status (pozostaw puste, aby zachować obecny)\n(dostępne: {', '.join(Task.ALLOWED_STATUSES)}): ")
                 if new_status:
                     task_to_edit.status = new_status
+                    is_updated = True
                 break
             except TaskFormatException as e:
                 print(f"Nieprawidłowy status: {e.message}")
@@ -147,6 +151,7 @@ class TaskManager:
                 new_due_date = input("Podaj nowy termin (pozostaw puste, aby zachować obecny) (format:YYYY-MM-DD): ")
                 if new_due_date:
                     task_to_edit.due_date = new_due_date
+                    is_updated = True
                 break
             except TaskFormatException as e:
                 print(f"Nieprawidłowy termin: {e.message}")
@@ -155,10 +160,16 @@ class TaskManager:
         new_category = input("Podaj nową kategorię (pozostaw puste, aby zachować obecną): ")
         if new_category:
             task_to_edit.category = new_category
+            is_updated = True
 
         new_description = input("Podaj nowy opis (pozostaw puste, aby zachować obecny): ")
         if new_description:
             task_to_edit.description = new_description
+            is_updated = True
+
+        if not is_updated:
+            print(f"Zadanie '{task_name}' pozostaje bez zmian. Nie wprowadzono żadnych aktualizacji.")
+            return
 
         final_decision = input(f"Czy chcesz zapisać zmiany w zadaniu '{task_name}'? (t/n): ").strip().lower()
         if final_decision != 't':
@@ -172,7 +183,8 @@ class TaskManager:
                 task_to_edit.description = task_before_edit.description
                 print(f"Zmiany w zadaniu '{task_name}' zostały anulowane.")
             return
-        print(f"Task '{task_name}' updated. (Remember to use 'commit' to save changes.)")
+
+        print(f"Zadanie o nazwie '{task_name}' zaktualizowane. (Pamiętaj, aby użyć 'commit' dla zapisania zmian.)")
 
     def list_tasks(self, flags: list[str]) -> None:
         detailed = False
@@ -198,7 +210,7 @@ class TaskManager:
             return
         print(f"Details for task '{task_name}':\n{task_to_show.__str__(detailed=True)}")
 
-    def filter_tasks(self, flags : list[str]) -> None:
+    def filter_tasks(self, flags: list[str]) -> None:
         while True:
             if '-clear' in flags or '-clr' in flags:
                 self.filter_dict = {key: set() for key in self.filter_dict.keys()}
@@ -215,7 +227,8 @@ class TaskManager:
                             print(f"\t{key}: {', '.join(values)}")
                 return
 
-            filter_attributes = (input(f"Wybierz atrybuty do filtrowania spośród {self.filter_dict.keys()}:")).split(" ")
+            filter_attributes = (input(f"Wybierz atrybuty do filtrowania spośród {self.filter_dict.keys()}:")).split(
+                " ")
             if not filter_attributes:
                 print("Nie podano atrybutów do filtrowania. Podaj atrybuty ponownie.")
                 continue
@@ -229,7 +242,7 @@ class TaskManager:
                 print(
                     f"\nPodaj wartości do filtrowania dla atrybutów {', '.join(filter_attributes)}.\n"
                     f"Możliwe wartości dla każdego atrybutu:\n" + "\n".join(
-                    f"  {attr}: {', '.join(self.allowed_resources[attr])}" for attr in filter_attributes
+                        f"  {attr}: {', '.join(self.allowed_resources[attr])}" for attr in filter_attributes
                     ))
                 filter_values = input("").strip().split(" ")
 
@@ -259,8 +272,7 @@ class TaskManager:
         try:
             if '-r' in flags:
                 reverse = True
-                args = list(args)
-                args.remove('-r')
+
             # Unikalne atrybuty do sortowania rozwiazane we wlasnym kluczu
             def my_key(task):
                 key = []
@@ -279,22 +291,59 @@ class TaskManager:
             print(f"Błąd sortowania: {e}")
 
     def display_statistics(self) -> None:
+        if not self.tasks:
+            print("No tasks available to display statistics.")
+            return
+
+        colors_bordo = ['#641B2E', '#8A2D3B', '#BE5B50']
+        colors_sea_vibes = ['#143D60', '#27667B', '#A0C878','#DDEB9D']
+        colors_cosmo = ['#210F37', '#4F1C51', '#A55B4B', '#DCA06D']
+
+        #1
         status_occurrences = {status: 0 for status in Task.ALLOWED_STATUSES}
         for task in self.tasks:
             status_occurrences[task.status] += 1
-        kolory = ['#ffb3ba', '#baffc9', '#bae1ff']  # pastelowe kolory
-        plt.pie(status_occurrences.values(), labels=status_occurrences.keys(), autopct='%1.1f%%', colors=kolory,
+
+        plt.pie(status_occurrences.values(), labels=status_occurrences.keys(), autopct='%1.1f%%', colors=colors_bordo,
                 startangle=90)
         plt.title("Statystyki zadań według statusu")
         plt.show()
 
+        #2
         category_occurrences = {category: 0 for category in self._allowed_categories}
-
         for task in self.tasks:
             category_occurrences[task.category] += 1
-        plt.pie(category_occurrences.values(), labels=category_occurrences.keys(), autopct='%1.1f%%',
-                startangle=90)
+        plt.bar(category_occurrences.keys(), category_occurrences.values(), color=colors_cosmo)
         plt.title("Statystyki zadań według kategorii")
+        plt.xlabel("Kategoria zadań")
+        plt.ylabel("Liczba zadań")
+        plt.show()
+
+        #3 rok -> miesiąc -> liczba wystąpień tego miesiąca, tego roku
+        yearly_monthly_occurences = {}
+        for task in self.tasks:
+            parsed_year = int(task.due_date.split('-')[0])
+            parsed_month = int(task.due_date.split('-')[1])
+            if (parsed_year, parsed_month) not in yearly_monthly_occurences:
+                yearly_monthly_occurences[(parsed_year, parsed_month)] = 1
+            else:
+                yearly_monthly_occurences[(parsed_year, parsed_month)] += 1
+
+        sorted_yearly_monthly_occurrences = dict(sorted(yearly_monthly_occurences.items(), key=lambda x: (x[0][0], x[0][1])))
+
+        year_month_string_map = {}
+        for (year, month), count in sorted_yearly_monthly_occurrences.items():
+            if month < 10:
+                year_month_string_map[f"{year}-0{month}"] = count
+            else:
+                year_month_string_map[f"{year}-{month}"] = count
+
+        plt.figure(figsize=(max(8, len(year_month_string_map) * 0.8), 6))
+        plt.bar(year_month_string_map.keys(), year_month_string_map.values(), color=colors_sea_vibes, width=0.6)
+        plt.xticks(rotation=45, ha='right')
+        plt.title("Liczba wykonanych zadań w poszczególnych miesiącach")
+        plt.xlabel("Miesiąc roku")
+        plt.ylabel("Liczba wykonanych zadań")
         plt.show()
 
     def load_from_file(self) -> None:
@@ -329,7 +378,7 @@ class TaskManager:
 
     def _validate_name(self, name: str) -> None:
         if any(task.name == name for task in self.tasks):
-            raise TaskFormatException(f"Task with name '{name}' already exists.")
+            raise NotUniqueNameException(f"Task with name '{name}' already exists.")
 
     def _update_categories(self) -> None:
         self._allowed_categories = set(task.category for task in self.tasks if task.category)

@@ -5,7 +5,7 @@ from Exceptions.TaskAlreadyDoneException import TaskAlreadyDoneException
 from Exceptions.TaskAlreadyHighestPrioException import TaskAlreadyHighestPrioException
 from Exceptions.TaskAlreadyLowestPrioException import TaskAlreadyLowestPrioException
 from Exceptions.TaskFormatException import TaskFormatException
-
+import calendar
 
 class Task:
     # Nie wolno zmieniac kolejnosci argumentow (finished ma byc ostatni)
@@ -100,6 +100,12 @@ class Task:
                 or not re.match(r"^\d{4}-\d{2}-\d{2}$", new_due_date)
         ):
             raise DataFormatException("Task due date must be a non-empty string in a format: YYYY-MM-DD.")
+        year, month, day = map(int, new_due_date.split("-"))
+        if not (1 <= month <= 12):
+            raise DataFormatException("Miesiąc musi być w zakresie 1-12.")
+        max_day = calendar.monthrange(year, month)[1]
+        if not (1 <= day <= max_day):
+            raise DataFormatException(f"Dzień musi być w zakresie 1-{max_day} dla miesiąca {month}.")
         self._due_date = new_due_date
 
     @property

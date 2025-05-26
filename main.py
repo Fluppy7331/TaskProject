@@ -1,6 +1,3 @@
-import pyreadline3
-#implementacja pod cmd zeby pamietac komendy, ale nie wiem, czy to chcemy
-
 from Classes.Task import Task
 from Classes.TaskManager import TaskManager
 from datetime import date
@@ -20,13 +17,12 @@ try:
         # INFO: tutaj strip() i [0] zeby tylko komenda była zmniejszana, a nie reszta
         command = input("Wpisz polecenie >").strip()
         # INFO: tutaj zeby nie było problemu z wielkością liter
-        command_parts = command.split(" ")
+        command_parts = [part.strip() for part in command.split(" ") if
+                         part]
         choice = command_parts[0].lower()
         command_parts.remove(choice)
         flags = [i for i in command_parts if i.startswith('-') or i.startswith('--')]
-        # command_suffix = [i for i in command_parts if not (i.startswith('-') or i.startswith('--'))]
-        command_suffix = [i for i in command_parts if i not in flags]
-
+        command_suffix = [i for i in command_parts if not (i.startswith('-') or i.startswith('--'))]
 
         if choice == 'add':
             name = input("Podaj nazwę zadania: ")
@@ -57,12 +53,10 @@ try:
                 name = command_suffix[0]
             taskManager.show_task_details(name)
         elif choice == 'filter':
-            #TODO: implement
             taskManager.filter_tasks(flags)
         elif choice == 'sort':
             taskManager.sort_tasks(flags,*command_suffix)
         elif choice == 'display':
-            #TODO: implement
             taskManager.display_statistics()
         elif choice == 'commit':
             taskManager.save_to_file()
